@@ -39,12 +39,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      
       - name: 登录到 阿里云ACR 仓库
-        uses: aliyun/actions-setup@v1
-        with:
-         access-key-id: ${{ secrets.ACR_USERNAME }}
-         access-key-secret: ${{ secrets.ACR_PASSWORD }}
-         region: ${{ github.event.inputs.TARGET_REGISTRY }}
+        id: login
+        run: |
+          echo "${{secrets.ACR_PASSWORD}}" | docker login -u ${{ secrets.DOCKER_USERNAME }}  ${{ github.event.inputs.TARGET_REGISTRY }} --password-stdin
         continue-on-error: true
       - name: 检查 阿里云ACR 登录成功
         if: ${{ steps.login.outcome == 'success' }}
