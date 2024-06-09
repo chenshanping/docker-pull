@@ -44,7 +44,7 @@ jobs:
         id: login
         env:
           ACR_USERNAME: aliyun9714359486
-          ACR_PASSWORD: ${{ secrets.PASSWORD }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         run: |
           echo $ACR_PASSWORD $ACR_USERNAME
           echo "$ACR_PASSWORD" | docker login -u $ACR_USERNAME  ${{ github.event.inputs.TARGET_REGISTRY }} --password-stdin
