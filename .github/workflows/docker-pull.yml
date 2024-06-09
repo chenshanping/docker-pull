@@ -41,7 +41,7 @@ jobs:
         id: login
         run: |
             echo "ACR_USERNAME: ${{ secrets.ACR_USERNAME }}"
-            docker login -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }} ${{ github.event.inputs.TARGET_REGISTRY }}
+            docker login -u "aliyun9714359486" -p "Ping991027;" ${{ github.event.inputs.TARGET_REGISTRY }}
         continue-on-error: true
 
       - name: 检查 Docker 登录成功
