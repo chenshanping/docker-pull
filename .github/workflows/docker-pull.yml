@@ -46,6 +46,7 @@ jobs:
           ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
           ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         run: |
+          echo $ACR_PASSWORD $ACR_USERNAME
           echo "$ACR_PASSWORD" | docker login -u $ACR_USERNAME  ${{ github.event.inputs.TARGET_REGISTRY }} --password-stdin
         
 
