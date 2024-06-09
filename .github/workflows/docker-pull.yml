@@ -43,7 +43,7 @@ jobs:
       - name: 登录到 阿里云ACR 仓库
         id: login
         env:
-          ACR_USERNAME: aliyun9714359486
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
           ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         run: |
           echo $ACR_PASSWORD $ACR_USERNAME
