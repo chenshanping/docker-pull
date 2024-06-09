@@ -42,12 +42,11 @@ jobs:
 
       - name: 登录到 阿里云ACR 仓库
         id: login
-        env:
-          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+        # env:
+        #   ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+        #   ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         run: |
-          echo $ACR_PASSWORD $ACR_USERNAME
-          echo "$ACR_PASSWORD" | docker login -u $ACR_USERNAME  ${{ github.event.inputs.TARGET_REGISTRY }} --password-stdin
+          docker login -u ${{ secrets.ACR_USERNAME }}  -p ${{ secrets.ACR_PASSWORD }} ${{ github.event.inputs.TARGET_REGISTRY }} 
         
 
       - name: 检查 阿里云ACR 登录成功
