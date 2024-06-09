@@ -38,12 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 登录到 Docker 仓库
-        id: login
-        run: |
-            echo "ACR_USERNAME: ${{ secrets.ACR_USERNAME }}"
-            docker login -u ${{ secrets.ACR_USERNAME }} -p "Ping991027;" ${{ github.event.inputs.TARGET_REGISTRY }}
+        uses: aliyun/login-action@v1
+        with:
+         access-key-id: ${{ secrets.ACR_USERNAME }}
+         access-key-secret: ${{ secrets.ACR_PASSWORD }}
+         region: ${{ github.event.inputs.TARGET_REGISTRY }}
         continue-on-error: true
-
       - name: 检查 Docker 登录成功
         if: ${{ steps.login.outcome == 'success' }}
         run: echo "Docker 登录成功"
