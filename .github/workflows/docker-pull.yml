@@ -37,20 +37,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 登录到 Docker 仓库
-        uses: aliyun/login-action@v1
+      - name: 登录到 阿里云ACR 仓库
+        uses: aliyun/actions-setup@v1
         with:
          access-key-id: ${{ secrets.ACR_USERNAME }}
          access-key-secret: ${{ secrets.ACR_PASSWORD }}
          region: ${{ github.event.inputs.TARGET_REGISTRY }}
         continue-on-error: true
-      - name: 检查 Docker 登录成功
+      - name: 检查 阿里云ACR 登录成功
         if: ${{ steps.login.outcome == 'success' }}
-        run: echo "Docker 登录成功"
+        run: echo "阿里云ACR 登录成功"
 
-      - name: 检查 Docker 登录失败
+      - name: 检查 阿里云ACR 登录失败
         if: ${{ steps.login.outcome != 'success' }}
-        run: echo "Docker 登录失败"
+        run: echo "阿里云ACR 登录失败"
 
       - name: 拉取、标记并推送 Docker 镜像
         id: pull_tag_push
