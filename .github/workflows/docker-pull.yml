@@ -46,7 +46,7 @@ jobs:
         #   ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
         #   ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         run: |
-          docker login -u ${{ secrets.ACR_USERNAME }}  -p ${{ secrets.ACR_PASSWORD }} ${{ github.event.inputs.TARGET_REGISTRY }} 
+          docker login -u "aliyun9714359486"  -p ${{ secrets.ACR_PASSWORD }} ${{ github.event.inputs.TARGET_REGISTRY }} 
         
 
       - name: 检查 阿里云ACR 登录成功
