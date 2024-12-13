@@ -68,11 +68,8 @@ jobs:
           # 将临时目录打包成 tar 文件，文件名可按需定义，这里以 package.tar 为例
           tar -cvf package.tar /tmp/package
         continue-on-error: true
-
-      - name: Check if Package Created Successfully
-        if: ${{ steps.create_package.outcome == 'success' }}
-        run: echo "包创建成功"
-
-      - name: Check if Package Creation Failed
-        if: ${{ steps.create_package.outcome!= 'success' }}
-        run: echo "包创建失败"
+      - name: Upload package to Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ steps.create_package.outcome == 'success' }}"
+        with:
+          files: package.tar
