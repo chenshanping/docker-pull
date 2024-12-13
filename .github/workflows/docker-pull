@@ -1,0 +1,78 @@
+name: Pull Docker Images and Create Package
+
+on:
+  workflow_dispatch:  # 手动触发工作流，你也可以按需设置其他触发条件，比如 push 事件等
+    inputs:
+      IMAGE_LIST_TXT:
+        description: '包含要拉取镜像名称（包含仓库地址和可选的标签）的文本文件路径，每行一个镜像名称，例如：images.txt'
+        required: true
+        default: 'images.txt'
+      ARCH:
+        description: '系统架构（如 amd64、arm64 等）'
+        required: true
+        default: 'amd64'
+        type: choice
+        options:
+          - amd64
+          - arm64
+          - arm/v7
+          - arm/v6
+          - 386
+          - s390x
+          - ppc64le
+
+jobs:
+  pull_image_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # 通常先检出代码，若无需代码相关操作可省略此步，但保留也无妨
+
+      - name: Read Image List from TXT
+        id: read_image_list
+        run: |
+          if [ -f ${{ github.event.inputs.IMAGE_LIST_TXT }} ]; then
+            # 读取文本文件内容，按行分割成数组，去除空行
+            mapfile -t image_list < ${{ github.event.inputs.IMAGE_LIST_TXT }}
+            echo "::set-output name=image_list::${image_list[*]}"
+          else
+            echo "指定的文本文件不存在，请检查配置。"
+            exit 1
+          fi
+        continue-on-error: true
+
+      - name: Pull Multiple Docker Images
+        id: pull_images
+        run: |
+          for image in ${{ steps.read_image_list.outputs.image_list }}; do
+            docker pull --platform ${{ github.event.inputs.ARCH }} $image
+          done
+        continue-on-error: true
+
+      - name: Check if Images Pulled Successfully
+        if: ${{ steps.pull_images.outcome == 'success' }}
+        run: echo "所有 Docker 镜像拉取成功"
+
+      - name: Check if Images Pull Failed
+        if: ${{ steps.pull_images.outcome!= 'success' }}
+        run: echo "部分或全部 Docker 镜像拉取失败"
+
+      - name: Create Package (tar file)
+        id: create_package
+        run: |
+          # 创建一个临时目录用于存放相关文件
+          mkdir -p /tmp/package
+          for image in ${{ steps.read_image_list.outputs.image_list }}; do
+            echo $image > /tmp/package/$(echo $image | tr '/' '_').txt
+          done
+          # 将临时目录打包成 tar 文件，文件名可按需定义，这里以 package.tar 为例
+          tar -cvf package.tar /tmp/package
+        continue-on-error: true
+
+      - name: Check if Package Created Successfully
+        if: ${{ steps.create_package.outcome == 'success' }}
+        run: echo "包创建成功"
+
+      - name: Check if Package Creation Failed
+        if: ${{ steps.create_package.outcome!= 'success' }}
+        run: echo "包创建失败"
