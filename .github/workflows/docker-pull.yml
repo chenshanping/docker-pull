@@ -1,0 +1,90 @@
+name: 批量镜像同步
+
+on:
+  workflow_dispatch:
+    inputs:
+      TARGET_REGISTRY:
+        description: '仓库地址'
+        required: true
+        default: 'registry.cn-shenzhen.aliyuncs.com'
+      TARGET_REPOSITORY:
+        description: '空间名称'
+        required: true
+        default: 'jxqwe'
+      ARCH:
+        description: '系统架构'
+        required: true
+        default: 'amd64'
+        type: choice
+        options:
+          - amd64
+          - arm64
+          - arm/v7
+          - arm/v6
+          - 386
+          - s390x
+          - ppc64le
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v2
+
+      - name: 登录到阿里云ACR
+        id: login
+        env:
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+        run: |
+          docker login -u $ACR_USERNAME -p $ACR_PASSWORD ${{ inputs.TARGET_REGISTRY }}
+
+      - name: 读取镜像列表文件
+        id: read_images
+        run: |
+          # 验证文件存在
+          if [ ! -f images.txt ]; then
+            echo "❌ 镜像列表文件 images.txt 未找到"
+            exit 1
+          fi
+          
+          # 输出文件内容供调试
+          echo "📋 镜像列表内容："
+          cat images.txt
+          echo "------------------------------------"
+
+      - name: 批量同步镜像
+        id: sync_images
+        run: |
+          while IFS=',' read -r src_image dst_image; do
+            # 去除首尾空格
+            src_image=$(echo $src_image | xargs)
+            dst_image=$(echo $dst_image | xargs)
+
+            echo "🔄 正在处理镜像对: $src_image → $dst_image"
+            
+            # 完整目标镜像地址
+            target_image="${{ inputs.TARGET_REGISTRY }}/${{ inputs.TARGET_REPOSITORY }}/$dst_image"
+
+            # 拉取镜像
+            echo "⬇️  拉取镜像: $src_image"
+            docker pull --platform ${{ inputs.ARCH }} $src_image
+
+            # 重新打标签
+            echo "🏷️  标记镜像: $target_image"
+            docker tag $src_image $target_image
+
+            # 推送镜像
+            echo "⬆️  推送镜像: $target_image"
+            docker push $target_image
+
+            echo "✅ 完成: $src_image → $target_image"
+            echo "------------------------------------"
+          done < images.txt
+
+      - name: 清理工作环境
+        if: always()
+        run: |
+          echo "🧹 清理临时镜像..."
+          docker image prune -a -f
