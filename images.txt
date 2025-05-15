@@ -1,1 +1,1 @@
-registry.gitlab.com/exosphere/exosphere,exosphere
+registry.gitlab.com/exosphere/exosphere,base:exosphere
