@@ -1,1 +1,1 @@
-registry.gitlab.com/exosphere/exosphere:laster,exosphere-laster
+registry.gitlab.com/exosphere/exosphere,exosphere
